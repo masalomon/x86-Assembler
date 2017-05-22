@@ -1,0 +1,284 @@
+
+         A S S E M B L Y   L A N G U A G E   R E F E R E N C E
+
+                              Compiled by
+
+                 M E N A C H E M   A.   S A L O M O N
+
+
+                      Assembly Language Reference
+                for the 80x86 Series of Intel Microchips
+
+	This is a reference for the Intel x86 microchip series through the 
+80486 (8086/8088, 80186/80188, 80286, 80386, and 80486.  At the time of
+writing, a reference manual for the Pentium series (Intel's name for the
+80586) was not available.
+
+	In recent years, the PC microchips manufactured by Intel have been
+referred to as the IA-32 (Intel Architecture, 32-bit) and IA-64 family.
+
+	The information in this reference is adapted from the Borland Turbo
+Assembler Quick Reference Guide (cite note).
+
+NOTE: Hexadecimal numbers are given in C format.
+
+
+PART I - INSTRUCTION FORMAT:
+(PartI-instrfmt.txt)
+
+Note: FROM HERE ON, MUCH OF THE INFORMATION COMES FROM "THE IA-32
+	PROGRAMMER'S GUIDE, VOLUME 2: INSTRUCTION REFERENCE" (C) INTEL,
+	PROVIDED FREE OF CHARGE.  THE INFORMATION, HOWEVER, ONLY DESCRIBES
+	THE BEHAVIOR OF PROCESSORS UP TO THE '486.
+	The Pentium and later processors essentially use the same format,
+	with many added capabilities.
+
+
+PART II: EXPLANATION OF REFERENCE FORMAT:
+
+A) Each entry in this reference contains several bits of information,
+	describing a single assembly language instruction.  An instruction
+	may take one of several forms, depending on the location and type of
+	the operands, each with its own opcode.  For each instruction, the
+	various opcodes and their corresponding forms are given, as well as
+	information about which processor flags are affected, what the
+	instruction does, where the operands are (memory, register, etc.),
+	and a detailed explanation.  In addition, the phrase of which the
+	instruction name is a mnemonic is given, as well as aliases (other
+	mnemonics for the same instruction).  As is normal for Intel, the
+	instruction mnemonics are given in AT&T assembly format.
+	This section contains an description of the format used for the
+	reference entries.
+
+B) Flag Information:
+	The FLAGS (or EFLAGS) register contains several 1-bit flags that may
+	be set or cleared based on the results of an instruction.  The 8086
+	to 80286 processors contain the following flags, listed here with
+	the corresponding 1-letter tag uses in this reference:
+	O - Overflow Flag - set what a number wraps around or goes beyond a
+		limit, such as when two positive integers are added and the
+		result, if taken as signed, is negative.
+	D - Direction Flag - directs whether string instructions will
+		increment (clear) or decrement (set) the eSI/eDI registers.
+		This flag is set and cleared directly with dedicated
+		instructions, not as a side effect of other instructions (with
+		the exception of instructions that affect the entire FLAGS
+		register, such as POPF or IRET).
+	I - Interrupt Flag - directs whether external hardware interrupts
+		are recognized.  If cleared, external interrupts are ignored
+		(except for NMI, #2).  This flag is not set or cleared as a side
+		effect of other instructions, but rather with its own dedicated
+		instructions.  This flag is usually set during normal operation,
+		and is only cleared for sensitive operations.
+	T - Trap Flag - used to control single-step mode, for use with a
+		debugger.  If set, an interrupt #1 is executed after each
+		instruction.  This flag is can only be set or cleared via an
+		IRET instuction.
+	S - Sign Flag - set to the high-order bit of the result of an ALU
+		instructions.  If set, indicates that the result was negative.
+	Z - Zero Flag - set to indicate that the result of an ALU operation
+		was zero, cleared otherwise.  Also set by some instructions that
+		test protected-mode permissions (LSL, LAR, VERR/VERW, etc.).
+	A - Auxiliary Carry Flag - used to support BCD arithmetic.  Set if
+		there was a carry into bit 3 of the result, cleared otherwise.
+	P - Parity Flag - indicates whether the low-order byte of the result
+		had an even (set) or odd (clear) number of bits set.  Often used
+		with port I/O.
+	C - Carry Flag - indicates whether an ALU operation generated a
+		carry out of the high-order bit.  Also used by shifts, bit-tests,
+		and error checking.
+
+	The following symbols are used to indicate how each flag changes as
+	a result of an instruction.  Each instruction explains how and when
+	it changes the flags.  The symbols are:
+	1 - The instruction always sets this flag (sets to 1).
+	0 - The instruction always clears this flag (sets to 0).
+	* - The instruction sets this flag to reflect the result.
+	? - The instruction leaves this flag in an undefined state.
+
+	The 16-bit FLAGS register is laid out as follows.  The bits marked
+	"x" are not used; for their values, see the PUSHF/POPF instructions.
+		+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+		| x | x | x | x | O | D | I | T | S | Z | x | A | x | P | x | C | 
+		+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+	Bit: 15  14  13  12  11  10   9   8   7   6   5   4   3   2   1   0
+
+	The 32-bit EFLAGS register on the 80386 and later processors include
+	the 16-bit FLAGS register as the lower 16 bits, and extend the width
+	with another 16 bits.  A description of the extended flags is beyond
+	the scope of this reference.
+
+C) Explanation of Opcodes:
+	The opcode section contains the machine code for each version of an
+	instruction.  These are the actual bytecodes understood directly by the
+	processor, expressed in hexadecimal (though they are not prefixed with 0x).
+	Some instruction opcodes are more than one byte long; in such cases, the
+	byte lower in memory is listed first.  Most opcodes are followed by one or
+	more symbols, which generally supply the types (sizes) and/or the locations
+	of the operands.  The symbols used are:
+	/digit (digit is a number from 0 to 7): the value of the reg field of the
+		ModR/M byte.  The instruction has a single register-or-memory operand,
+		addressed by the mod and r/m fields.  (There may be another, immediate,
+		operand.)  The digit specifies 3 more bits of opcode, an extension to
+		the instruction's opcode.
+	/r: The instruction has two operands, specified in the ModR/M byte.  They
+		are a register, encoded in the reg field, and a register/memory operand,
+		encoded in the combined mod and r/m fields.  Exactly how the two
+		operands are interpreted (e.g. source and destination) is specific to
+		the instruction.
+	ib, iw, id: a 1, 2, or 4 byte immediate operand, respectively.  The value
+		to be used is read from the instruction stream, directly following the
+		instruction opcode (and ModR/M byte, if any).  (Note: id, a 4-byte
+		operand, is only available on the 386 and later processors.)
+	cb, cw, cd, cp: a 1, 2, 4, or 6 byte immediate operand, where the value is
+		used to calculate a pointer to executable code, as the target of a CALL
+		or JUMP instructions.  The value may be offset to the current IP
+		(instruction pointer), or it may be absolute.  The absolute forms may
+		contain a segment address in addition to the segment offset.  (On the
+		386 and later processors, cd may be a 32-bit offset;  in protected-mode
+		only, cp is a 16-bit segment selector and a 32-bit segment offset.)
+	+rb, +rw, +rd: The instruction has a register operand encoded directly in
+		the opcode.  The register code is added to the base opcode to form the
+		actual opcode.  (Note: +rd is only available on the 386 and later
+		processors.)  The register codes are as follows:
+			+------+-----+-----+-----+-----+-----+-----+-----+-----+
+			| code |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |
+			+------+-----+-----+-----+-----+-----+-----+-----+-----+
+			|  rb  |  AL |	CL |  DL |  BL |  AH |  CH |  DH |  BH |
+			|  rw  |  AX |  CX |  DX |  BX |  SP |  BP |  SI |  DI |
+			|  rd  | EAX | ECX | EDX | EBX | ESP | EBP | ESI | EDI |
+			+------+-----+-----+-----+-----+-----+-----+-----+-----+
+		The explanation section of each instruction where this is used includes
+		the full list of opcodes and their corresponding operands.
+
+D) Explanation of Operands:
+	In the instruction syntax, several symbols are use to represent operands,
+	the symbols describing what and where the operands are.  In the standard
+	Intel syntax, the first operand is the DEST (destination) operand, and the
+	second operand is the SRC (source) operand.  In the standard AT&T syntax,
+	the order of the operands is reversed: the first operand is SRC, the second
+	is DEST.  For example, the Intel "MOV AX, BX" means "Move (copy) to AX the
+	value of BX" (in pseudo-code, this would be "AX = BX").  In AT&T syntax,
+	this is expressed as "movw %bx, %ax", meaning "Move (copy) the value of BX
+	to AX."
+	In addition, AT&T syntax requires that all register names be prefixed with
+	a percent sign ("%"), as in above "%bx" and "%ax", and that all constants,
+	static, or immediate operands be prefixed with an ampersand ("&").  Also,
+	the instruction mnemonic must have its size (Byte, Word, Long) affixed.  In
+	the Intel syntax, this information is understood from the types or the
+	operands - for memory references, the data definition directive (DB, DW, or
+	DD) is used as a guide, but where ambiguous, BYTE PTR, WORD PTR, or DWORD
+	PTR can be used.
+	Another difference is how numbers are expressed: while both syntaxes
+	understand numbers to be decimal (base 10) by default, in the Intel syntax,
+	hexadecimal numbers are expressed by supplying an "H" or "h" suffix and
+	binary numbers by a "B" or "b" suffix; the AT&T syntax expects hexadecimal
+	numbers to be prefixed with "0x" or "0X". (To avoid being mistaken for
+	labels, number is the Intel syntax must begin with a digit; if the first
+	digit of a hexadecimal number is a letter, the number must begin with a 0,
+	such as 0ABh instead of ABh.)  The effect of this is that the AT&T syntax
+	is much simpler to parse, but perhaps less easy to read and write.
+	In this reference, the Intel syntax is given.  The following symbols are
+	used to indicate the instruction operands:
+	r8 - an 8-bit (byte) register; one of AL, CL, DL, BL, AH, CH, DH, or BH.
+	r16 - a 16-bit (word) register; one of AX, CX, DX, BX, SP, BP, SI, or DI.
+	r32 - a 32-bit (double-word/long) register; one of EAX, ECX, EDX, EBX, ESP,
+		EBP, ESI, or EDI (only on the 386 and later processors).
+	imm8 - an immediate 8-bit (byte) value, 0x00 to 0xFF.  imm8 is a signed
+		number in the range {-128 to +127}.  This value may be sign-extended to
+		a larger size (16 or 32 bits) - the upper byte(s) filled with a copy of
+		the sign-bit (bit 7) - to match the size of the other operand in some
+		arithmetic operations.
+	imm16 - an immediate 16-bit (2 bytes, or a word) value, 0x0000 to 0xFFFF.
+		imm16 is a signed integer in the range {-32,768 to +32,767}.
+	imm32 - an immediate 32-bit (4 bytes, or a double-word or long) value,
+		0x0000'0000 to 0xFFFF'FFFF.  imm32 is a signed integer in the range
+		{-2,147,483,648 to +2,147,483,647}.  (386 an later processors only.)
+	r/m8 - an 8-bit (byte) value, addressed by the mod and r/m fields of the
+		ModR/M byte: either the contents of a byte register (see r8), or a byte
+		from memory.
+	r/m16 - a 16-bit (word) value, either in a word register (see r16) or in
+		two consecutive bytes in memory.  The address of the low-order byte is
+		given by the mod and r/m fields of the ModR/M byte, and the high-order
+		byte is one byte higher in memory (little-endian).
+	r/m32 - a 32-bit (double-word/long) value, either in a double-word register
+		(see r32) or in 4 consecutive bytes in memory, the low-order byte of
+		which is addressed by the mod and r/m fields of the ModR/M byte.
+	rel8 - an 8-bit signed immediate value, in the range {-128 to +127} (0x00
+		to 0xFF), specifying a relative address in the same code segment,
+		offset from the first byte in the following instruction.  The value is
+		sign-extended and added to the eIP register, to effect a short jump.
+	rel16 - a 16-bit signed value, in the range {-32,768 to +32,767} (0x0000 to
+		0xFFFF) specifying a near (same code segment) relative address, offset
+		from the first byte of the following instruction.  The word value is
+		added to the eIP register, to effect a near jump.
+	rel32 - a 32-bit signed immediate value, in the range {-2,147,483,648 to 
+		+2,147,483,647} (0x0000'0000 to 0xFFFF'FFFF), specifying a near (same
+		code segment) relative address, offset from the first byte of the
+		following instruction.  The double-word value is added to the EIP
+		register, to effect a near jump (on the 386 and later only).
+	ptr16:16 - an immediate far pointer, consisting of two parts: a 16-bit
+		segment selector (or base address, in real mode), and a 16-bit offset
+		within that segment.  Read as a double-word in little-endian form, the
+		low-order word (lowest in memory, earlier in the instruction stream) is
+		the offset within the segment, and the high-order word (highest in
+		memory, later in the instruction stream) is the segment selector value.
+		Generally, the segment selector indicates a code segment, intended for
+		the CS register.
+	ptr16:32 - an immediate far pointer (on the 386 and later processors only),
+		consisting of a 16-bit segment selector or value, generally for the CS
+		register, and a 32-bit offset within that segment.  The offset is lower
+		in memory (earlier in the instruction stream), low-order byte first.
+	m16:16 - a far pointer stored in memory (addressed by the ModR/M byte),
+		consisting of a 16-bit segement selector (stored lower in memory) and a
+		16-bit offset (or address) within that segment.
+	m16:32 - a 6-byte far pointer, stored in memory and addressed by the ModR/M
+		byte, consisting of (in order) a 16-bit segment selector and a 32-bit
+		offset within that segment.
+	m8 - an 8-bit (byte) operand of a string instruction.
+	m16 - a 16-bit (word) operand of a string instruction.
+	m32 - a 32-bit (long) operand of a string instruction.
+		Note: the m8, m16, and m32 operands are addressed by the register pairs
+		DS:eSI (use of the DS segement register may be overridden) for reading,
+		and ES:eDI (ES cannot be overridden if there are two operands) for
+		writing.
+	Sreg - a (16-bit) segement selector register.  (See tables 1 and 2 for the
+		register codes of the segment selector registers.)
+	m16&16 - a pair of (16-bit) words, stored in memory and addressed by the
+		ModR/M byte.  This operand form is used by the BOUND instruction to
+		give the lower bound (the word lower in memory) and the upper bound
+		(the word higher in memory) of an array or memory block. 
+	m32&32 - a pair of (32-bit) double-words, stored in memory and addressed by
+		the ModR/M byte.  This operand form is used by the BOUND instruction on
+		the 386 and later processors, to give the lower and upper bounds of an
+		array or memory block.
+	m16&32 - a 6-byte block consisting of a word followed by a double-word,
+		stored at the memory location addressed by the ModR/M byte.  This
+		operand form is used by the LIDT/LGDT instructions to provide a word
+		for the LIMIT field and a double-word for the BASE field of the Global
+		and Interrupt Descriptor Table Registers.
+	moffs8 - a byte in memory, addressed by an immediate near pointer (16- or
+		32-bit), which is an offset into the current data (or overridden)
+		segment; used by some forms of the MOV instruction.
+	moffs16 - a word in memory, addressed by an immediate near (16 or 32-bit)
+		pointer, an offset into the current data (or overridden) segment; used
+		by some forms of the MOV instruction.
+	moffs32 - a double-word (long) in memory, addressed by an immediate near
+		pointer, an offset into the current data (or overridden) segment; used
+		by some forms of the MOV instruction.
+
+Note: The operand size attribute of the instruction, whether specified by the
+	Code Segment status or by an override, indicates whether the operand is
+	16-bits long (r16, imm16, r/m16, rel16, ptr16:16, m16:16, m16, m16&16, and
+	moffs16) or 32-bits long (r32, imm32, r/m32, rel32, ptr16:32, m16:32, m32,
+	m32&32, and moffs32).  The address-size attribute, whether specified by the
+	Code Segment status or by an override, indicates whether the near pointer
+	used by moffs16 or moffs32 is 16 bits or 32 bits (2 bytes or 4 bytes) long.
+	The operand of the LGDT and LIDT instructions is m16&32 regardless of the
+	operand-size attribute, although the high-order byte (bits 40 - 47) are not
+	used if the operand-size is 16 bits. (In effect, it is read as m16&24.)
+
+
+PART III: INSTRUCTION REFERENCE:
+(PartIII-instrref.txt)
+
