@@ -1,0 +1,387 @@
+
+         A S S E M B L Y   L A N G U A G E   R E F E R E N C E
+
+                              Compiled by
+
+                 M E N A C H E M   A.   S A L O M O N
+
+
+                      Assembly Language Reference
+                for the 80x86 Series of Intel Microchips
+
+	This is a reference for the Intel x86 microchip series through the 
+80486 (8086/8088, 80186/80188, 80286, 80386, and 80486.  At the time of
+writing, a reference manual for the Pentium series (Intel's name for the
+80586) was not available.
+
+	In recent years, the PC microchips manufactured by Intel have been
+referred to as the IA-32 (Intel Architecture, 32-bit) and IA-64 family.
+
+	The information in this reference is adapted from the Borland Turbo
+Assembler Quick Reference Guide (cite note).
+
+NOTE: Hexadecimal numbers are given in C format.
+
+
+PART I - INSTRUCTION FORMAT:
+(PartI-instrfmt.txt)
+
+Note: FROM HERE ON, MUCH OF THE INFORMATION COMES FROM "THE IA-32
+	PROGRAMMER'S GUIDE, VOLUME 2: INSTRUCTION REFERENCE" (C) INTEL,
+	PROVIDED FREE OF CHARGE.  THE INFORMATION, HOWEVER, ONLY DESCRIBES
+	THE BEHAVIOR OF PROCESSORS UP TO THE '486.
+	The Pentium and later processors essentially use the same format,
+	with many added capabilities.
+
+
+PART II: EXPLANATION OF REFERENCE FORMAT:
+(PartII-reffmt.txt)
+
+
+PART III: INSTRUCTION REFERENCE:
+
+
+1) ASCII Adjustments: Operate on unpacked binary coded decimal (BCD) numbers in
+	AX.  Convert to ASCII numerals by following the operation (and subsequent
+	division, for AAD) with an OR AL, 0x30.
+
+	AAA			; 37		[8086]	| ASCII Adjustment after Addition
+	AAD			; D5 0A		[8086]	| ASCII Adjust before Division (Base 10)
+	AAD imm8	; D5 ib		[8086]	| Generalized ASCII Adjust before Division
+	AAM			; D4 0A		[8086]	| ASCII Adjust after Multiplication (Base 10)
+	AAM imm8	; D4 ib		[8086]	| Generalized ASCII Adjust for Multiplication
+	AAS			; 3F		[8086]	| ASCII Adjustment after Subtraction
+
+	Description:
+	a) AAA: If, because of a previous addition, the lower nibble (4 bits) of AL
+		now contains a value greater than 9 (so it cannot be represented by a
+		decimal digit), implement a carry: increment AH (which holds the next
+		digit - this is unpacked BCD) and subtract 9 from AL.  The CF and AF
+		flags indicate whether a carry was performed.  (The upper nibble of AL
+		is cleared, regardless of whether or not a carry was performed.)
+	b) AAD: Division cannot be performed on BCD numbers, so the unpacked BCD
+		number (tens place in AH, ones place in AL) must be converted to normal
+		two's complement form first: multiply AH by 10 (0xA) and add AL; the
+		result is stored in AL and AH is cleared.  FLAGS{SF, ZF, PF} are set or
+		cleared to reflect the result.
+		The immediate form is undocumented; it performs the same operation with
+		a base other than 10.
+	c) AAM: Multiplication performed on unpacked BCD numbers may leave a result
+		in AH that now needs to be converted from normal two's complement form
+		to unpacked BCD form: Divide AL by 10 (0xA); put the integer part of
+		the result (tens place) into AH and the remainder part of the result
+		(ones place) into AL.  FLAGS{SF, ZF, PF} are set or cleared to reflect
+		the result.
+		The immediate form is undocumented; it performs the same operation with
+		a base other than 10.
+	d) AAS: If, because of a previous subtraction, the lower nibble of AL now
+		contains a value greater than 9 (representing an invalid decimal digit),
+		implement a borrow: decrement AH and subtract 6 from AL.  The CF and AF
+		flags indicate whether a carry (borrow) was performed.  (The upper
+		nibble of AL is cleared, regardless of whether or not a borrow was
+		performed.)
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Some flags are set or cleared as indicated.
+		The others ({OF, SF, ZF, PF} for AAA and AAS, {OF, AF, CF} for AAD and
+		AAM) are left in an undefined state.
+
+2) ADC - ADD with Carry Flag: Calculate the sum of the two operands and the SF
+	flag (an extra 1 or 0), and store the result into the destination operand.
+	This is used to propogate a carry across multi-byte or multi-word addition.
+
+	ADC r/m8, r8	;		10 /r	|	ADC r/m8, imm8		;		80 /2 ib
+	ADC r/m16, r16	;	o16 11 /r	|	ADC r/m16, imm16	;	o16 81 /2 iw 
+	ADC r/m32, r32	;	o32 11 /r	|	ADC r/m32, imm32	;	o32 81 /2 id
+	ADC r8, r/m8	;		12 /r	|	(*) [ADC r/m8, sx(imm8)	;	82 /2 ib]
+	ADC r16, r/m16	;	o16 13 /r	|	ADC r/m16, sx(imm8)	;	o16 83 /2 ib
+	ADC	r32, r/m32	;	o32 13 /r	|	ADC r/m32, sx(imm8)	;	o32 83 /2 ib
+	ADC AL, imm8	;		14 ib	|
+	ADC AX, imm16	;	o16 15 iw	|
+	ADC EAX, imm32	;	o32	15 id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+3) ADD - ADD two operands: Standard Addition - calculate the sum of the two
+	operands, and store the result into the destination operand.
+
+	ADD r/m8, r8	;		00 /r	|	ADD r/m8, imm8		;		80 /0 ib
+	ADD r/m16, r16	;	o16 01 /r	|	ADD r/m16, imm16	;	o16 81 /0 iw 
+	ADD r/m32, r32	;	o32 01 /r	|	ADD r/m32, imm32	;	o32 81 /0 id
+	ADD r8, r/m8	;		02 /r	|	(*) [ADD r/m8, sx(imm8)	;	82 /0 ib]
+	ADD r16, r/m16	;	o16 03 /r	|	ADD r/m16, sx(imm8)	;	o16 83 /0 ib
+	ADD	r32, r/m32	;	o32 03 /r	|	ADD r/m32, sx(imm8)	;	o32 83 /0 ib
+	ADD AL, imm8	;		04 ib	|
+	ADD AX, imm16	;	o16 05 iw	|
+	ADD EAX, imm32	;	o32	05 id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+4) AND - Logical AND of two operands: Calculate the bitwise logical AND of two
+	operands, and store the result into the destination operand.  Each bit of
+	the result is set if and only if the corresponding bits of both operands is
+	set.
+
+	AND r/m8, r8	;		20 /r	|	AND r/m8, imm8		;		80 /4 ib
+	AND r/m16, r16	;	o16 21 /r	|	AND r/m16, imm16	;	o16 81 /4 iw 
+	AND r/m32, r32	;	o32 21 /r	|	AND r/m32, imm32	;	o32 81 /4 id
+	AND r8, r/m8	;		22 /r	|	(*) [AND r/m8, sx(imm8)	;	82 /4 ib]
+	AND r16, r/m16	;	o16 23 /r	|	AND r/m16, sx(imm8)	;	o16 83 /4 ib
+	AND	r32, r/m32	;	o32 23 /r	|	AND r/m32, sx(imm8)	;	o32 83 /4 ib
+	AND AL, imm8	;		24 ib	|
+	AND AX, imm16	;	o16 25 iw	|
+	AND EAX, imm32	;	o32	25 id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: OF and CF are cleared, AF is undefined.
+		SF, ZF, and PF are modified to reflect the result of the operation.
+
+5) ARPL - Adjust RPL (Requested Privilege Level) of selector: If the RPL (bits
+	0 and 1) of the segment selector in the destination operand is less (more
+	privileged) than the RPL of the segment selector in the source operand, the
+	RPL of the destination is increased to match the RPL of the source.  This
+	instruction is generally of use to code that is part of the OS or other
+	system software, to ensure that an application cannot request an operation
+	that requires more privilege that it is entitled to, based on its CPL (the
+	RPL of its Code Segment), but its use is not protected from applications.
+
+	ARPL r/m16, r16		;	63 /r	[80286, OS, PM]
+	FLAGS{ZF}: ZF indicates whether an RPL adjustment was performed. 
+	
+6) BOUND - Check that value is within BOUNDs: Check that an array index, in a
+	register, has a value that is within the bounds of an array.  The array
+	bounds structure is a pair of numbers, in memory, that specify the lower
+	and upper bounds (addresses), respectively, of the array.  If the index is
+	not within the limits (inclusive), a #BR (INT 5) is generated; the return
+	address is the BOUND instruction, which will be re-executed (hopefully with
+	the index  now within bounds).
+
+	BOUND r16, m16&16	;	o16 62 /r	|	BOUND r32, m32&32	;	o32 62 /r
+
+	Introduced in the 80286 processor.  No FLAGS are changed.
+
+7) BSF/BSR - Bit Scan Forward/Reverse: Scan the operand for the first bit that
+	is set.  Scanning begins from the LSB (least significant bit, bit 0) for
+	forward-scanning, or from the MSB (most significant bit, bit 15 or 31) for
+	reverse-scanning.  The result is the index of the first 1-bit in the source
+	operand; if the operand is 0 (all bits clear), the result is undefined.
+
+	BSF r16, r/m16		; o16 0F BC /r	| Forward Bit Scan on r/m16 -> r16 
+	BSF r32, r/m32		; o32 0F BC /r	| Forward Bit Scan on r/m32 -> r32
+	BSR r16, r/m16		; o16 0F BD /r	| Reverse Bit Scan on r/m16 -> r16
+	BSR r32, r/m32		; o32 0F BD /r	| Reverse Bit Scan on r/m32 -> r32
+
+	FLAGS{ZF} indicates whether or not a 1-bit was found.
+	Introduced in the 80386 processor. FLAGS{OF, SF, AF, PF, CF} are undefined.
+	
+8) BSWAP - Byte SWAP: Rearrange the bytes in a 32-bit register, swapping bytes
+	0 and 3, and bytes 2 and 4, switching between little-endian (low-order byte
+	lowest in memory) and big-endian (high-order byte lowest in memory) form.
+	(If the operand is a 16-bit register, the result is undefined.  To swap the
+	bytes of a 16-bit value, use XCHG r8, r8 instead.)
+
+	BSWAP r32		; (o32) 0F C8 +r	| Uses opcodes 0F C8 - 0F CF.
+
+	Introduced in the 80486 processor.  No FLAGS are changed.
+	
+
+9) BT/BTC/BTR/BTS: Bit Test (and Complement, Reset, or Set): Check if the
+	specified bit in the operand is set (equal to 1) or clear (equal to 0), and
+	store the bit's value in the Carry Flag.  The base (first operand) is the
+	address or location of the byte string containing the bit, and the offset
+	(second operand) is the index of the bit within the string.
+	After saving the bit's value, the bit can be: BTR - reset (cleared, or set
+	to 0); BTS - set (to 1); BTC - complemented (negated: set if clear, or
+	cleared if set); or BT - left unchanged.
+
+	BT r/m16, r16	; o16 0F A3 /r	|	BT r/m16, imm8		; o16 0F BA /4 ib
+	BT r/m32, r32	; o32 0F A3 /r	|	BT r/m32, imm8		; o32 0F BA /4 ib
+	BTC r/m16, r16	; o16 0F BB /r	|	BTC r/m16, imm8		; o16 0F BA /7 ib
+	BTC r/m32, r32	; o32 0F BB /r	|	BTC r/m32, imm8		; o32 0F BA /7 ib
+	BTR r/m16, r16	; o16 0F B3 /r	|	BTR r/m16, imm8		; o16 0F BA /6 ib
+	BTR r/m32, r32	; o32 0F B3 /r	|	BTR r/m32, imm8		; o32 0F BA /6 ib
+	BTS r/m16, r16	; o16 0F AB /r	|	BTS r/m16, imm8		; o16 0F BA /5 ib
+	BTS r/m32, r32	; o32 0F AB /r	|	BTS r/m32, imm8		; o32 0F BA /5 ib
+
+	FLAGS{CF} contains the saved value of the desired bit.
+	Introduced in the 80386 Processor. (FLAGS{OF, SF, AF, PF} are undefined.)
+
+10) CALL - Call a subprocedure, pushing the return address on the stack for a
+	future RET instruction.  The block of code being called may be in the same
+	code segment (a near call), in another code segment of the same privilege
+	level (a far call - this applies to all far calls in real-mode or V86-mode),
+	in a code segment of a different privilege level, accessed through a call
+	gate, or in another task, accessed through a task gate.  Near calls can be
+	absolute (the operand contains the exact address of the target instruction)
+	or relative: the location of the target instruction is found by adding a
+	displacement (an immediate word or dword) to the address of the instruction
+	immediately following the CALL instruction.
+
+	CALL rel16	; o16 E8 cw		| CALL near, relative - PUSH IP, JMP [IP + cw]
+	CALL rel32	; o32 E8 cd		| CALL near, relative - PUSH EIP, JMP [EIP + cd]
+	CALL r/m16	; o16 FF /2		| CALL near, absolute - 16-bit addr. in reg/mem
+	CALL r/m32	; o32 FF /2		| CALL near, absolute - 32-bit addr. in reg/mem
+	CALL ptr16:16	; o16 9A cd	| CALL far - full segment/offset in 32-bit imm.
+	CALL ptr16:32	; o32 9A cp	| CALL far - full segment/offset in 48-bit imm.
+	CALL m16:16	; o16 FF /3		| CALL far - 32-bit segment/offset at r/m mem.
+	CALL m16:32	; o32 FF /3		| CALL far - 48-bit segment/offset at r/m mem.
+
+	For near calls, the (E)IP register, pointing to the first byte of the next
+	instruction (IP if o16, EIP if o32), is pushed onto the stack.  Then, the
+	the operand is either added to eIP (for relative calls), or eIP is set to
+	its value (for absolute calls).  The CS register is unchanged.
+	For far calls, first the CS register is pushed onto the stack (the upper
+	word padded with 0's if o32), followed by (E)IP.  In real or V86 mode, the
+	CS register is loaded with the segment part (16 high-order bits) of the far
+	pointer in the operand, and (E)IP is loaded with with the offset part of
+	the pointer (the low-order 16 or 32 bits).
+	In protected mode, the segment selector part of the far call operand (which
+	are the 16 bits lowest in memory) are an index to a descriptor (in the GDT
+	or LDT) which MUST describe describe one of the following:
+	a) A code segment of the same privilege level.  The target instruction is
+		the offset part of the operand, offset to the base address given in the
+		code segment descriptor.  The offset may not exceed the segment limit.
+		The CS register and the (E)IP register are loaded with the selector and
+		offset from the operand.
+	b) A conforming code segment of a more privileged level (the descriptor's
+		DPL is less than the CPL, bits 0-1 of CS).  The target is the specified
+		offset within the requested code segment.  The CS and (E)IP registers
+		are loaded with the selector and offset from the operand, except that
+		the CPL remains unchanged.
+	c) A call gate.  This is a descriptor that contains a code segment selector,
+		segment offset, and parameter count.  The CS and (E)IP registers are
+		loaded from the values in the call gate; the offset part of the operand
+		is ignored.  If the permissions in the call gate (DPLs and RPLs of the
+		gate and its indicated code segment) indicate that the CPL is to change,
+		then a stack switch occurs: SS and (E)SP are set to point to the stack
+		for the new privilege level (from the TSS), and the old SS:(E)SP values,
+		the parameters, and the return CS:(E)IP values are copied to the new
+		stack.
+	d) A Task State Segment (TSS), or a task gate.  This is a descriptor that
+		contains a pointer to a TSS.  Either of these indicate that the called
+		code is to be executed as a different task, and a task-switch occurs
+		(with nesting).  In either case, the CS and (E)IP registers are loaded
+		from the values stored in the TSS; the offset part of the operand is
+		ignored.
+
+	If any of the permission checks fail, or if any segment, offset, or gate is
+	invalid, an exception is generated.  In most cases, this is a #GP (INT 13),
+	but it can also be an #SS (INT ?), #NP (INT ?), or #TS (INT ??).
+	No FLAGS are changed, unless a task-switch occurs, in which case all FLAGS
+	are restored to their previous values from the TSS.
+
+11) Size Conversions: Sign-extend a smaller value to a larger value.
+
+	CBW		; o16 98	| Convert Byte to Word: AX = sx(AL)
+	CWDE	; o32 99	| Convert Word to Doubleword (EAX reg.): EAX = sx(AX) 
+	CWD		; o16 99	| Convert Word to Doubleword: DX:AX = sx(AX)
+	CDQ		; 032 99	| Convert Doubleword to Quadword: EDX:EAX = sx(EAX)
+
+	No FLAGS are changed.
+
+12) FLAG Operations (1): Change the value of the specified bit in (E)FLAGS.
+	Only the specified flag bit is changed; all others are left unmodified.
+
+	CLC		; F8	| Clear Carry Flag: CF = 0
+	CLD		; FC	| Clear Direction Flag: DF = 0 (String instructions advance)
+	CLI		; FA	| Clear Interrupt-enable Flag: IF = 0 (disable interrupts)
+	CMC		; F5	| Complement Carry Flag: CF = ~CF
+	CLTS	; 0F 06	| Clear Task-switched (TS) flag (bit 3 of CR0/MSW)
+
+	The IF (Interrupt-enabled Flag) can only be changed if the CPL is at least
+	as privileged as the IOPL (CPL <= IOPL).  (IOPL is bits 12-13 of (E)FLAGS.)
+	The TS flag is set when a task-switch occurs, to enable the OS to save the
+	x87 state in the TSS.  It can only be cleared by code running at a CPL of 0.
+
+13) CMP - CoMPare two operands: Calculate the difference of the first and the
+	second operand.  Do not store the result, just reflect it in the state of
+	the processor status flags.  This is generally followed by an instruction
+	that is conditional on the state of the flags, such as conditional jumps.
+
+	CMP r/m8, r8	;		38 /r	|	CMP r/m8, imm8		;		80 /7 ib
+	CMP r/m16, r16	;	o16 39 /r	|	CMP r/m16, imm16	;	o16 81 /7 iw 
+	CMP r/m32, r32	;	o32 39 /r	|	CMP r/m32, imm32	;	o32 81 /7 id
+	CMP r8, r/m8	;		3A /r	|	(*) [ADC r/m8, sx(imm8)	;	82 /7 ib]
+	CMP r16, r/m16	;	o16 3B /r	|	CMP r/m16, sx(imm8)	;	o16 83 /7 ib
+	CMP	r32, r/m32	;	o32 3B /r	|	CMP r/m32, sx(imm8)	;	o32 83 /7 ib
+	CMP AL, imm8	;		3C ib	|
+	CMP AX, imm16	;	o16 3D iw	|
+	CMP EAX, imm32	;	o32	3D id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+14) CMPS - CoMPare String operands: Compare two data items and set the FLAGS
+	based on the result.  The bytes, words, or double-words at DS:(E)SI and
+	ES:(E)DI are compared, the FLAGS being set accordingly but the difference
+	being otherwise discarded.  The index registers (E)SI and (E)DI are then
+	advanced to point to the next element in the string.
+
+	CMPS m8, m8		;		A6		|	CMPSB		;		A6
+	CMPS m16, m16	;	o16 A7		|	CMPSW		;	o16	A7
+	CMPS m32, m32	;	o32 A7		|	CMPSD		;	o32 A7
+
+	The operands are always the index registers DS:(E)SI (the DS segment register
+	can be overriden by the appropriate segment override prefix) and ES:(E)DI
+	(the ES segment register cannot be overriden), which must have been
+	pre-loaded with the correct addresses.  The operand versions merely allow
+	the assembler to choose the correct instruction based on the original
+	definition of the data objects.
+
+	After comparing the data, the index registers are advanced to the next
+	element in the string: by 1 for CMPSB, 2 for CMPSW, or 4 for CMPSD.  The
+	direction of this advance is based on the Direction Flag (DF): forward if
+	the flag is clear, or backward if the flag is set.  The set of registers
+	are the 16-bit SI/DI if the address-size attribute is 16 bits, or the 32-bit
+	ESI/EDI if the address-size attribute is 32 bits.
+
+	CMPS can be preceded by a REPE/REPZ (0xF3) or REPNE/REPNZ (0xF2) prefix, to
+	continually compare elements in a string.  At each repetition, the (E)CX
+	register is decremented, the loop ending when it reaches 0 or the condition
+	fails (ZF is set/clear based on the comparison).  The JeCXZ instruction can
+	be used to differentiate between the two cases.
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the comparison.
+
+15) CMPXCHG - CoMPare and eXCHanGe: Implement the basic semaphore lock
+	operation, comparing the accumulator (AL, AX, or EAX) with the destination
+	(first) operand.  If they are the same, the destination operand is loaded
+	with the value from the source (second) operand.  If they are not the same,
+	the accumulator is loaded from the destination operand so they are now the
+	same.  This is commonly used as the atomic synchronization operation.
+
+	CMPXCHG r/m8, r8	;		0F B0 /r	| AL == r/m ? r/m = r : AL = r/m
+	CMPXCHG r/m16, r16	;	o16 0F B1 /r	| AX == r/m ? r/m = r : AX = r/m
+	CMPXCHG r/m32, r32	;	o32 0F B1 /r	| EAX == r/m ? r/m = r : EAX = r/m
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the comparison.
+	ZF being set after the instruction means that the destination was loaded.
+	This instruction was introduced in the 80486 processor.
+	Note: It seems that on the '486, the opcodes may have been 0F A6 and 0F A7.
+
+16) DEC
+
+17) DIV
+
+18) ENTER
+
+19)
+
+20)
+
+2) ADC: ADD with Carry Flag: Calculate the sum of the two operands and the SF
+	flag (an extra 1 or 0), and store the result into the destination operand.
+	This is used to propogate a carry across multi-byte or multi-word addition.
+
+	ADC r/m8, r8	;		10 /r	|	ADC r/m8, imm8		;		80 /2 ib
+	ADC r/m16, r16	;	o16 11 /r	|	ADC r/m16, imm16	;	o16 81 /2 iw 
+	ADC r/m32, r32	;	o32 11 /r	|	ADC r/m32, imm32	;	o32 81 /2 id
+	ADC r8, r/m8	;		12 /r	|	(*) [ADC r/m8, sx(imm8)	;	82 /2 ib]
+	ADC r16, r/m16	;	o16 13 /r	|	ADC r/m16, sx(imm8)	;	o16 83 /2 ib
+	ADC	r32, r/m32	;	o32 13 /r	|	ADC r/m32, sx(imm8)	;	o32 83 /2 ib
+	ADC AL, imm8	;		14 ib	|
+	ADC AX, imm16	;	o16 15 iw	|
+	ADC EAX, imm32	;	o32	15 id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+
+
+
+
