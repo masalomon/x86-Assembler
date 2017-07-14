@@ -1,0 +1,287 @@
+<!Doctype HTML>
+<!-- This is Part I: Instruction Format of the Assembly Language Reference. -->
+<!-- Author: Menachem Salomon <mazsalomon@gmail.com> -->
+
+<html>
+
+<head>
+<title>
+	Assembly Language Reference - Instruction Format
+</title>
+
+<style>
+.center { text-align: center; }
+.caps { font-variant: small-caps; }
+.sublist { margin: 1em auto; }
+</style>
+</head>
+
+<body>
+
+<header class="center">
+	<h3 class="caps">Menachem Salomon's</h3>
+	<h2>ASSEMBLY LANGUAGE REFERENCE</h2>
+	<h4>For the 80x86 Series of Intel Microchips</h4>
+	<h2>Part I: Instruction Format</h2>
+</header>
+
+<nav>
+<h3><a href="index.html">Complete Table of Contents</a></h3>
+<ol type="I">
+<li><a class="caps" href="instrfmt.html">Instruction Format</a>
+	<ol type="A">
+	<li><a href="#Format">Format of a Machine Code Instruction</a></li>
+	<li><a href="#Prefix">Instruction Prefix</a></li>
+	<li><a href="#Overrides">Address-size and Operand-size Overrides</a></li>
+	<li><a href="#Segments">Segment Override</a></li>
+	<li><a href="#ModRM">The ModR/M and Displacement Fields</a></li>
+	<li><a href="#SIB">The SIB Byte</a></li>
+	<li><a href="#Immediate">Immediate Operand Field</a></li>
+	</ol>
+</li>
+<li><a class="caps" href="reffmt.html">Explanation of Reference Format</a></li>
+<li><a class="caps" href="instrref.html">Instruction Reference</a></li>
+</ol>
+</nav>
+
+<h3 name="PartI">PART I - INSTRUCTION FORMAT:</h3>
+
+<ol type="A"><li value="1">
+	<h4 id="Format">Format of Machine Code Instruction</h4>
+</li></ol>
+<pre>
+A) The format of a machine code instruction for the 80x6 includes several
+	fields containing opcode information.  The are as follows:
+
+	1) Instruction Prefix		- 1 byte, optional
+	2) Address-size Override	- 1 byte (0x67), optional
+	3) Operand-size Override	- 1 byte (0x66), optional
+	4) Segment Override			- 1 byte, optional
+	5) Instruction Opcode		- 1 or 2 bytes (required)
+	6) ModR/M (Address)			- 1 byte, required for some instructions.
+	7) SIB (Extended Address)	- 1 byte, required by some ModR/M codes
+	8) Displacement				- 1, 2, or 4 bytes, depending on ModR/M
+	9) Immediate				- 1, 2, or 4 bytes, sometimes required
+
+	The presence of the ModR/M, Displacement, and Immediate fields
+	depends on the opcode.  The presence of the SIB field (and sometimes
+	the Displacement field) depends on the value of the ModR/M field.
+	(Values for the ModR/M and SIB fields are shown in Part I:E.)
+
+	The Address-size Override, Operand-size Override, and SIB fields are
+	only used by the '386 and later processors, as are the 4-byte forms
+	of the Displacement and Immediate fields.
+</pre>
+
+<ol type="A"><li value="2">
+	<h4 id="Prefix">Instruction Prefix</h4>
+</li></ol>
+<pre>
+B) Instruction Prefix:
+	0xF3 - REP (repeat) prefix, when used with forms of the INSx, OUTSx,
+		LODSx, STOSx, and MOVSx string instructions
+	0xF3 - REPE/REPZ prefix, when used with forms of the CMPSx and SCASx
+		string instructions
+	0xF2 - REPNE/REPNZ prefix, used with forms of the CMPSx and SCASx
+		string instructions
+	... where (x) means Byte, Word, or Double-word.
+	0xF0 - LOCK prefix for memory synchronization.  From the '386 on,
+		this may only be used with certain instructions.
+	For more details, see the entries on the LOCK and REPx instructions.
+</pre>
+
+<ol type="A"><li value="3">
+	<h4 id="Overrides">Address-size and Operand-size Overrides</h4>
+</li></ol>
+<pre>
+C) Address-size and Operand-size Overrides ('386 and above only):
+	In real mode and virtual-8086, the default operand size is 16 bits,
+	as is the default address size.  This means that instructions will
+	operate on the word registers (AX, CX, DX, BX, etc.), rather than on
+	the double-word (32-bit) registers (EAX, ECX, EDX, EBX, etc.).  In
+	protected mode, the default address and operand size depend on the
+	D-bit (bit 54) of the code segment (CS) selector: if the bit is
+	clear (0), the default operand/address size is 16-bit; if the bit is
+	set (1), the default operand/address size is 32-bit.  The Override
+	prefixes, 0x66 (Operand) and 0x67 (Address), changes the size of the
+	operand or address size used by the following instruction, from
+	16-bit to 32-bit and vice versa.  A real-mode program using the
+	extended 32-bit registers would therefore need to prefix each
+	instruction by 0x66, the Operand-size Override.
+
+	For instructions that use the stack (e.g. PUSH, POP, etc.), the
+	default address size depends on the B-bit (bit 54) ofr the SS
+	selector.  (This is the same bit as the D-bit of executable
+	segments.  For Stack Segment selectors, Intel refers to it as the
+	B-bit instead.)  When the bit is clear or the processor is running
+	in real mode, the default address-size of 16 bits means that PUSH,
+	POP, and similar instructions with use the 16-bit SP register as the
+	stack pointer, to be incremented or decremented by the operand size
+	(2 or 4 bytes).  If the B-bit is set, however, the 32-bit ESP
+	register is used as the stack pointer.  The Address-size Override
+	prefix, 0x67, is used to override the default, from 16-bit to 32-bit
+	and vice versa.
+
+	Note that PUSHing or POPping a 16-bit operand on the stack can cause
+	the stack to become unaligned on double-word boundaries, which may
+	have negative performance costs.  See more information in the
+	entries for the PUSH and POP instructions.
+</pre>
+
+<ol type="A"><li value="4">
+	<h4 id="Segments">Segment Override</h4>
+</li></ol>
+<pre>
+D) Segment Override:
+	Most instructions use a certain segment selector register by default
+	for their operands.  In many cases, this default can be overriden by
+	the use of the following Segment Override prefixes:
+		0x26 - ES segment override			0x2E - CS segment override
+		0x36 - SS segment override			0x3E - DS segment override
+		0x64 - FS segment override ('386 and above only)
+		0x65 - GS segment override ('386 and above only)
+
+	The default segment selectors are:
+	* The instruction pointer (IP/EIP), used to locate the next
+		instruction, always uses the CS register.  No override is
+		possible.  (Note that eIP is never used explicitly.)
+	* The stack pointer (SP/ESP) always uses the SS register.  No
+		override is possible.  (Note that eSP is not used explicitly.)
+	* The stack frame pointer (BP/EBP) uses the SS register.  This can
+		be overridden through the use of the appropriate segment
+		override prefix.
+	* In string instructions with two indices (CMPSx, INSx, MOVSx, and
+		STOSx), the destination index register (DI/EDI) uses the ES
+		segment register.  This cannot be overridden, as the override
+		prefix will apply to the source index (SI/ESI) register.
+	* All other memory accesses use the DS segment register by default.
+		This can be overridden by through the use of the appropriate
+		segment override prefix.
+	* Other uses of ES, and any uses of FS or GS, require the
+		appropriate segment override prefix.
+</pre>
+
+<ol type="A"><li value="5">
+	<h4 id="ModRM">The ModR/M and Displacement Fields</h4>
+</li></ol>
+<pre>
+E) The ModR/M and Displacement Fields:
+	The ModR/M byte specifies the operands, in registers or in memory,
+	upon which the instruction is to operate. It is divided into 3 bit
+	fields:
+		+---+---+---+---+---+---+---+---+
+		|  mod  |    reg    |    r/m    |
+		+---+---+---+---+---+---+---+---+
+	Bit:  7   6   5   4   3   2   1   0
+	1) Bits 7 and 6 - the mod field - combine with the r/m field to form
+		a combined 5-bit field (see below).
+	2) Bits 5, 4, and 3 - the reg field - specifies either a register to
+		be used as an operand (of a two-operand instruction) or a 3-bit
+		opcode extension (for many one-operand instructions).  Each
+		instruction specifies which of the two meanings is used in its
+		particular case.
+	3) Bits 2, 1, and 0 - the r/m field - combine with the 2 bits of the
+		mod field to form 32 possible addresing modes for the instuction
+		operand, including 8 general-purpose registers (when the mod
+		field has a value of 11b) and 24 indexing modes.  These
+		addressing modes are listed in the tables below.
+		The 24 indexing modes are different in the 2-bit addressing mode
+		of the '386 and later processors.  In particular, certain
+		encodings indicate the presence of an extended addressing field,
+		encoded in the SIB byte.
+
+	TABLE 1: 16-bit addressing modes of the combined mod and r/m fields
+	TABLE 2: 32-bit addressing modes of the combined mod and r/m fields
+	(1) sreg is used only in certain forms of the MOV instruction
+	(2) disp8 means an 8-bit (1 byte) displacement, sign extended and
+		added to the index
+	(3) disp16 means a 16-bit (2 byte) displacement, added to the index
+	(4) disp32 means a 32-bit (4 byte) displacement, added to the index
+	(5) [--][--] specifies the presence of an SIB byte (see below)
+	Note that the negative displacement are perfectly valid and useful.
+</pre>
+
+<ol type="A"><li value="6">
+	<h4 id="SIB">The SIB Byte</h4>
+</li></ol>
+<pre>
+F) The SIB Byte ('386 and above only):
+	On the 32-bit processors, certain encodings of the ModR/M byte
+	indicate that a scale factor be used to calculate the address of a
+	memory operand.  These encodings are:
+		(1) 00xxx011b - Memory operand is specified by SIB byte
+		(2) 01xxx011b - Address calculated by SIB + 8-bit displacement
+		(3) 10xxx011b - Address calculated by SIB + 32-bit displacement
+	Like the ModR/M byte, the SIB byte is divided into 3 bit fields:
+		+---+---+---+---+---+---+---+---+
+		|   SS  |   index   |    base   |
+		+---+---+---+---+---+---+---+---+
+	Bit:  7   6   5   4   3   2   1   0
+	1) The SS field (bits 7 and 6) indicate the scale factor, in powers
+		of 2, of the the index register.  Values of 00, 01, 10, and 11
+		indicate that the value of the register specified by the index
+	2) The index field (bits 5, 4, and 3) indicate the general-purpose
+		register (except ESP, which cannot be used as an index) to be
+		used as an index and added to the base (after being multiplied
+		by the scale factor).
+	3) The base field (bits 2, 1, and 0) indicate the general-purpose
+		register (except EBP) containing the base address of a block of
+		memory, such as the base address of an array or object.
+	The address of the memory operand is calculated as:
+		[base] + ([index] * 2^[SS]) + displacement (disp8 / disp32)
+	(TODO: explain EBP/ESP)
+	TABLE 3: Values and meanings of the SIB byte
+</pre>
+
+<ol type="A"><li value="7">
+	<h4 id="Immediate">Format of Machine Code Instruction</h4>
+</li></ol>
+<pre>
+G) Immediate Operand Field:
+	For many instructions, some of their forms specify the use of an
+	immediate operand.  This means that the value to be used is part of
+	the instruction itself, the byte or bytes in the instruction stream
+	immediately following the opcode (and any other addressing bytes
+	that are present).  These include arithmetic operations and jumps.
+	For example, in the case of the conditional short jumps (opcodes
+	0x71 - 0x7F and 0xE3), the immediate value, 1 byte long, is the byte
+	following the instruction byte itself.
+
+	Most often, an operand-size attribute of 16 bits specifies that the
+	size of the immediate operand is 2 bytes, and an operand-size
+	attribute of 32 bits specifies the size of the immediate operand as
+	4 bytes.  The default operand size can be overridden by the use of
+	the appropriate operand-size override prefix (See Part I, Section C).
+</pre>
+
+<p>
+More information is included in the explanation section of each
+	instruction; see there for more details.
+<p>
+Note that the use of multiple overrides per instruction is reserved.
+	Certain override combinations are actually the start of the advanced
+	mathematic instructions of the Pentium, P6, or P4 series (e.g. MMX,
+	SIMD, SSE, etc.).
+<p>
+Note: FROM HERE ON, MUCH OF THE INFORMATION COMES FROM "THE IA-32
+	PROGRAMMER'S GUIDE, VOLUME 2: INSTRUCTION REFERENCE" (C) INTEL,
+	PROVIDED FREE OF CHARGE.  THE INFORMATION, HOWEVER, ONLY DESCRIBES
+	THE BEHAVIOR OF PROCESSORS UP TO THE '486.
+	The Pentium and later processors essentially use the same format,
+	with many added capabilities.
+</p>
+
+<footer>
+<h4>Return to <a href="index.html">Table of Contents</a></h4>
+<ol type="I">
+	<li><a href="instrfmt.html#PartI">PART I - INSTRUCTION FORMAT</a></li>
+	<li><a href="reffmt.html#PartII">PART II: EXPLANATION OF REFERENCE FORMAT
+		</a></li>
+	<li><a href="instrref.html#PartIII">PART III: INSTRUCTION REFERENCE</a></li>
+</ol>
+
+<small>Copyright &copy; 2017 by Menachem A. Salomon</small>
+</footer>
+
+</body>
+</html>
