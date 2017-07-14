@@ -84,12 +84,12 @@ PART III: INSTRUCTION REFERENCE:
 		The others ({OF, SF, ZF, PF} for AAA and AAS, {OF, AF, CF} for AAD and
 		AAM) are left in an undefined state.
 
-2) ADC - ADD with Carry Flag: Calculate the sum of the two operands and the SF
+2) ADC - ADD with Carry Flag: Calculate the sum of the two operands and the CF
 	flag (an extra 1 or 0), and store the result into the destination operand.
 	This is used to propogate a carry across multi-byte or multi-word addition.
 
 	ADC r/m8, r8	;		10 /r	|	ADC r/m8, imm8		;		80 /2 ib
-	ADC r/m16, r16	;	o16 11 /r	|	ADC r/m16, imm16	;	o16 81 /2 iw 
+	ADC r/m16, r16	;	o16 11 /r	|	ADC r/m16, imm16	;	o16 81 /2 iw
 	ADC r/m32, r32	;	o32 11 /r	|	ADC r/m32, imm32	;	o32 81 /2 id
 	ADC r8, r/m8	;		12 /r	|	(*) [ADC r/m8, sx(imm8)	;	82 /2 ib]
 	ADC r16, r/m16	;	o16 13 /r	|	ADC r/m16, sx(imm8)	;	o16 83 /2 ib
@@ -104,7 +104,7 @@ PART III: INSTRUCTION REFERENCE:
 	operands, and store the result into the destination operand.
 
 	ADD r/m8, r8	;		00 /r	|	ADD r/m8, imm8		;		80 /0 ib
-	ADD r/m16, r16	;	o16 01 /r	|	ADD r/m16, imm16	;	o16 81 /0 iw 
+	ADD r/m16, r16	;	o16 01 /r	|	ADD r/m16, imm16	;	o16 81 /0 iw
 	ADD r/m32, r32	;	o32 01 /r	|	ADD r/m32, imm32	;	o32 81 /0 id
 	ADD r8, r/m8	;		02 /r	|	(*) [ADD r/m8, sx(imm8)	;	82 /0 ib]
 	ADD r16, r/m16	;	o16 03 /r	|	ADD r/m16, sx(imm8)	;	o16 83 /0 ib
@@ -121,7 +121,7 @@ PART III: INSTRUCTION REFERENCE:
 	set.
 
 	AND r/m8, r8	;		20 /r	|	AND r/m8, imm8		;		80 /4 ib
-	AND r/m16, r16	;	o16 21 /r	|	AND r/m16, imm16	;	o16 81 /4 iw 
+	AND r/m16, r16	;	o16 21 /r	|	AND r/m16, imm16	;	o16 81 /4 iw
 	AND r/m32, r32	;	o32 21 /r	|	AND r/m32, imm32	;	o32 81 /4 id
 	AND r8, r/m8	;		22 /r	|	(*) [AND r/m8, sx(imm8)	;	82 /4 ib]
 	AND r16, r/m16	;	o16 23 /r	|	AND r/m16, sx(imm8)	;	o16 83 /4 ib
@@ -143,8 +143,8 @@ PART III: INSTRUCTION REFERENCE:
 	RPL of its Code Segment), but its use is not protected from applications.
 
 	ARPL r/m16, r16		;	63 /r	[80286, OS, PM]
-	FLAGS{ZF}: ZF indicates whether an RPL adjustment was performed. 
-	
+	FLAGS{ZF}: ZF indicates whether an RPL adjustment was performed.
+
 6) BOUND - Check that value is within BOUNDs: Check that an array index, in a
 	register, has a value that is within the bounds of an array.  The array
 	bounds structure is a pair of numbers, in memory, that specify the lower
@@ -163,7 +163,7 @@ PART III: INSTRUCTION REFERENCE:
 	reverse-scanning.  The result is the index of the first 1-bit in the source
 	operand; if the operand is 0 (all bits clear), the result is undefined.
 
-	BSF r16, r/m16		; o16 0F BC /r	| Forward Bit Scan on r/m16 -> r16 
+	BSF r16, r/m16		; o16 0F BC /r	| Forward Bit Scan on r/m16 -> r16
 	BSF r32, r/m32		; o32 0F BC /r	| Forward Bit Scan on r/m32 -> r32
 	BSR r16, r/m16		; o16 0F BD /r	| Reverse Bit Scan on r/m16 -> r16
 	BSR r32, r/m32		; o32 0F BD /r	| Reverse Bit Scan on r/m32 -> r32
@@ -180,9 +180,8 @@ PART III: INSTRUCTION REFERENCE:
 	BSWAP r32		; (o32) 0F C8 +r	| Uses opcodes 0F C8 - 0F CF.
 
 	Introduced in the 80486 processor.  No FLAGS are changed.
-	
 
-9) BT/BTC/BTR/BTS: Bit Test (and Complement, Reset, or Set): Check if the
+9) BT/BTC/BTR/BTS - Bit Test (and Complement, Reset, or Set): Check if the
 	specified bit in the operand is set (equal to 1) or clear (equal to 0), and
 	store the bit's value in the Carry Flag.  The base (first operand) is the
 	address or location of the byte string containing the bit, and the offset
@@ -270,7 +269,7 @@ PART III: INSTRUCTION REFERENCE:
 11) Size Conversions: Sign-extend a smaller value to a larger value.
 
 	CBW		; o16 98	| Convert Byte to Word: AX = sx(AL)
-	CWDE	; o32 99	| Convert Word to Doubleword (EAX reg.): EAX = sx(AX) 
+	CWDE	; o32 99	| Convert Word to Doubleword (EAX reg.): EAX = sx(AX)
 	CWD		; o16 99	| Convert Word to Doubleword: DX:AX = sx(AX)
 	CDQ		; 032 99	| Convert Doubleword to Quadword: EDX:EAX = sx(EAX)
 
@@ -296,7 +295,7 @@ PART III: INSTRUCTION REFERENCE:
 	that is conditional on the state of the flags, such as conditional jumps.
 
 	CMP r/m8, r8	;		38 /r	|	CMP r/m8, imm8		;		80 /7 ib
-	CMP r/m16, r16	;	o16 39 /r	|	CMP r/m16, imm16	;	o16 81 /7 iw 
+	CMP r/m16, r16	;	o16 39 /r	|	CMP r/m16, imm16	;	o16 81 /7 iw
 	CMP r/m32, r32	;	o32 39 /r	|	CMP r/m32, imm32	;	o32 81 /7 id
 	CMP r8, r/m8	;		3A /r	|	(*) [ADC r/m8, sx(imm8)	;	82 /7 ib]
 	CMP r16, r/m16	;	o16 3B /r	|	CMP r/m16, sx(imm8)	;	o16 83 /7 ib
@@ -355,31 +354,545 @@ PART III: INSTRUCTION REFERENCE:
 	This instruction was introduced in the 80486 processor.
 	Note: It seems that on the '486, the opcodes may have been 0F A6 and 0F A7.
 
-16) DEC
+16) Decimal Adjustments: Operate on packed 2-digit BCD (binary coded decimal)
+	numbers in AL.  An ADD or SUB instruction on packed BCD may leave a value in
+	AL that is no longer valid BCD; these instructions correct the result.
 
-17) DIV
+	DAA			; 27		[8086]	| Decimal Adjustment after Addition
+	DAS			; 2F		[8086]	| Decimal Adjustment after Subtraction
 
-18) ENTER
+	Description:
+	a) DAA: If (as a result of an addition) either nibble (4 bits) of AL now
+		contains a value greater than 9, perform a carry as appropriate.  For
+		each nibble, the AF flag (indicating a carry out of the lower nibble in
+		the previous operation) or the CF flag (indicating a previous carry out
+		of the upper nibble) is checked, and the carry is performed regardless
+		of the value in that nibble.  The operation is as follows:
+			if (AL & 0x0F > 0x09 || AF) AL += 6, AF = 1;
+			if (AL & 0xF0 > 0x90 || CF) AL += 0x60, CF = 1;
+	b) DAS: If (as a result of a packed BCD subtraction) either nibble of AL
+		needs to be adjusted so it does not contain a value greater than 9,
+		perform borrows as appropriate.  For each nibble, the AF flag
+		(indicating a borrow for the lower nibble of AL was needed) or the CF
+		flag (indicating a borrow for the upper nibble was needed) is also
+		checked.  The operation is as follows:
+			if (AL & 0x0F > 0x09 || AF) AL -=6, AF = 1;
+			if (AL & 0xF0 > 0x90 || CF) AL -= 0x60, CF = 1;
+	FLAGS{OF, SF, ZF, AF, PF, CF}: {AF, CF} are set as indicate,; {SF, ZF, PF}
+		reflect the result of the operation, and {OF} is undefined.
 
-19)
+17) DEC - DECrement operand by 1.  The operand is both source and destination.
 
-20)
+	DEC r/m8	;		FE /1		|	DEC r16		;	o16 48 +iw
+	DEC r/16	;	o16 FF /1		|	DEC r32		;	o32 48 +rd
+	DEC r/m32	;	o32 FF /1		|	// Uses opcodes 0x48 through 0x4F
+
+	FLAGS{OF, SF, ZF, AF, PF}: Reflect the result of the operation.
+	Note: The Carry Flag (CF) is not modified by this instruction.
+
+18) DIV - Unsigned DIVide: Divide the extended accumulator pair (AH:AL, DX:AX,
+	or EDX:EAX) by the operand, and store the result back into the extended
+	accumulator: the (truncated) quotient in the accumulator (AL, AX, or EAX),
+	and the remainder in the extension (AH, DX, or EDX).
+
+	DIV r/m8	;		F6 /6	|	AL = AX / src, AH = AX % src
+	DIV r/16	;	o16 F7 /6	|	AX = DX:AX / src, DX = DX:AX % src
+	DIV r/m32	;	o32 F7 /6	|	EAX = EDX:EAX / src, EDX = EDX:EAX % src
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Undefined, do not reflect the result.
+	If the the divisor (src) is 0, or if the quotient does not fit into the
+	destination register, a #DE (INT 0: Divide error) exception is generated.
+
+19) ENTER - Construct a stack frame upon ENTERing a procedure: This instruction
+	sets up a stack frame for a procedure, allocating space on the stack for
+	local (automatic) variables and, optionally, copying previous frame pointers
+	to allow a nested function access to the local variables and stack frame of
+	the calling function.
+	First, the current (caller's) frame pointer is saved (PUSHed) on the stack,
+	so it can be recovered by a corresponding LEAVE instruction.  The value of
+	the stack pointer (SP or ESP, for 16-bit and 32-bit stack-size attribute,
+	respectively) at this point is the current procedure's frame pointer, and
+	will be the value of the frame pointer register (BP/EBP) through the course
+	of this function.
+	Then, for each nesting level above 1, a frame pointer is copied from the
+	caller's frame to the current frame by being pushed onto the stack, and
+	lastly (for nesting level 1) the current frame pointer is pushed onto the
+	stack, so it can in turn be accessed by a more deeply nested procedure.  The
+	stack pointer (SP/ESP) is updated appropriately.
+	Finally, the frame pointer register (BP/EBP) is loaded with the current
+	procedure's	frame pointer, and space for local storage is allocated on the
+	stack by decrementing the stack pointer by the number given in the first
+	operand.  The layout of the frame is thus:
+	(a) Positive offsets from the frame pointer - Arguments passed on the stack
+		to this procedure, if any (depending on the calling mechanism).
+	(b) Just above the frame pointer - the return address of the caller.
+	(c) At the frame pointer - The saved caller's frame pointer.
+	(d) Negative offsets from the frame pointer, up to the nesting level (for
+		nesting levels greater than 0) - Frame pointers of previous callers, the
+		highest in the nesting hierarchy right below the frame pointer, with
+		deeper nesting levels lower until the current frame pointer furthest
+		from the frame pointer.
+	(e) Negative offsets from the frame pointer, with offsets greater than the
+		nesting level - local memory storage, allocated on the stack.
+	(f) The current top of stack, which the stack pointer currently points to,
+		and the stack available for any subsequent use.
+	The stack-size attribute (address-size of the SS register) indicates whether
+	SP or ESP is used as the stack pointer, and whether BP or EBP is used as the
+	frame pointer.  The operand-size attribute (which may be overriden by an
+	operand-size override prefix) specifies the size, 16 or 32 bits, of each
+	value PUSHed onto the stack.
+
+	ENTER imm16, imm8	;	C8 iw ib	|	(ib is masked to 5 bits)
+
+	The first operand (imm16) is the number of bytes of local storage to
+	allocate.  The second operand (imm8) is the nesting level; it is masked to
+	5 bits, giving a maximum nesting level of 31.
+
+	No FLAGS are modified by this instruction.
+
+20) HLT - HaLT the processor: The processor stops executing any further
+	instructions and may enter a HALT state.  An external interrupt (or NMI, if
+	interrupts are disabled) or certain signals cause the processor to resume
+	operation from the instruction following the HLT instruction.
+	This instruction is privileged, and may only be executed by code running at
+	a CPL of 0.
+
+	HLT		;	F4		|	Cease execution until external signal received.
+
+21) IDIV - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+22) IMUL - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+23) IN - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+24) INC - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+25) INS - 
+14) CMPS - CoMPare String operands: Compare two data items and set the FLAGS
+	based on the result.  The bytes, words, or double-words at DS:(E)SI and
+	ES:(E)DI are compared, the FLAGS being set accordingly but the difference
+	being otherwise discarded.  The index registers (E)SI and (E)DI are then
+	advanced to point to the next element in the string.
+
+	CMPS m8, m8		;		A6		|	CMPSB		;		A6
+	CMPS m16, m16	;	o16 A7		|	CMPSW		;	o16	A7
+	CMPS m32, m32	;	o32 A7		|	CMPSD		;	o32 A7
+
+	The operands are always the index registers DS:(E)SI (the DS segment register
+	can be overriden by the appropriate segment override prefix) and ES:(E)DI
+	(the ES segment register cannot be overriden), which must have been
+	pre-loaded with the correct addresses.  The operand versions merely allow
+	the assembler to choose the correct instruction based on the original
+	definition of the data objects.
+
+	After comparing the data, the index registers are advanced to the next
+	element in the string: by 1 for CMPSB, 2 for CMPSW, or 4 for CMPSD.  The
+	direction of this advance is based on the Direction Flag (DF): forward if
+	the flag is clear, or backward if the flag is set.  The set of registers
+	are the 16-bit SI/DI if the address-size attribute is 16 bits, or the 32-bit
+	ESI/EDI if the address-size attribute is 32 bits.
+
+	CMPS can be preceded by a REPE/REPZ (0xF3) or REPNE/REPNZ (0xF2) prefix, to
+	continually compare elements in a string.  At each repetition, the (E)CX
+	register is decremented, the loop ending when it reaches 0 or the condition
+	fails (ZF is set/clear based on the comparison).  The JeCXZ instruction can
+	be used to differentiate between the two cases.
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the comparison.
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+26) INT - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+27) INVD - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+28) INVLPG - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+29) IRET - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+30) Conditional Jumps:
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+31) JMP - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+32) LAHF - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+33) LAR - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+34) LEA - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+37) LxS - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+35) LEAVE - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+36) Load Special Register - Load Protected Mode, Operating System registers.
+	These instructions are privileged, and cannot be executed unless the
+	processor is running at a CPL of 0.
+
+	LGDT	m16&32	;	0F 01 /2	| Load Global Descriptor Table register
+	LIDT	m16&32	;	0F 01 /3	| Load Interrupt Descriptor Table register
+	LLDT	r/m16	;	0F 00 /2	| Load Local Descriptor Table register
+	LTR		r/m16	;	0F 03 /3	| Load Task Register
+	LMSW	r/m16	;	0F 01 /6	| Load Machine Status Word (CR0[15:0])
+
+	No FLAGS are modified as a result of these instructions.
+
+40) LOCK - 
+41) LODS -
+14) CMPS - CoMPare String operands: Compare two data items and set the FLAGS
+	based on the result.  The bytes, words, or double-words at DS:(E)SI and
+	ES:(E)DI are compared, the FLAGS being set accordingly but the difference
+	being otherwise discarded.  The index registers (E)SI and (E)DI are then
+	advanced to point to the next element in the string.
+
+	CMPS m8, m8		;		A6		|	CMPSB		;		A6
+	CMPS m16, m16	;	o16 A7		|	CMPSW		;	o16	A7
+	CMPS m32, m32	;	o32 A7		|	CMPSD		;	o32 A7
+
+	The operands are always the index registers DS:(E)SI (the DS segment register
+	can be overriden by the appropriate segment override prefix) and ES:(E)DI
+	(the ES segment register cannot be overriden), which must have been
+	pre-loaded with the correct addresses.  The operand versions merely allow
+	the assembler to choose the correct instruction based on the original
+	definition of the data objects.
+
+	After comparing the data, the index registers are advanced to the next
+	element in the string: by 1 for CMPSB, 2 for CMPSW, or 4 for CMPSD.  The
+	direction of this advance is based on the Direction Flag (DF): forward if
+	the flag is clear, or backward if the flag is set.  The set of registers
+	are the 16-bit SI/DI if the address-size attribute is 16 bits, or the 32-bit
+	ESI/EDI if the address-size attribute is 32 bits.
+
+	CMPS can be preceded by a REPE/REPZ (0xF3) or REPNE/REPNZ (0xF2) prefix, to
+	continually compare elements in a string.  At each repetition, the (E)CX
+	register is decremented, the loop ending when it reaches 0 or the condition
+	fails (ZF is set/clear based on the comparison).  The JeCXZ instruction can
+	be used to differentiate between the two cases.
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the comparison.
+42) LOOP/LOOPcc - 
+43) LSL - 
+45) MOV - 
+46) MOV (2) - 
+47) MOVS - 
+14) CMPS - CoMPare String operands: Compare two data items and set the FLAGS
+	based on the result.  The bytes, words, or double-words at DS:(E)SI and
+	ES:(E)DI are compared, the FLAGS being set accordingly but the difference
+	being otherwise discarded.  The index registers (E)SI and (E)DI are then
+	advanced to point to the next element in the string.
+
+	CMPS m8, m8		;		A6		|	CMPSB		;		A6
+	CMPS m16, m16	;	o16 A7		|	CMPSW		;	o16	A7
+	CMPS m32, m32	;	o32 A7		|	CMPSD		;	o32 A7
+
+	The operands are always the index registers DS:(E)SI (the DS segment register
+	can be overriden by the appropriate segment override prefix) and ES:(E)DI
+	(the ES segment register cannot be overriden), which must have been
+	pre-loaded with the correct addresses.  The operand versions merely allow
+	the assembler to choose the correct instruction based on the original
+	definition of the data objects.
+
+	After comparing the data, the index registers are advanced to the next
+	element in the string: by 1 for CMPSB, 2 for CMPSW, or 4 for CMPSD.  The
+	direction of this advance is based on the Direction Flag (DF): forward if
+	the flag is clear, or backward if the flag is set.  The set of registers
+	are the 16-bit SI/DI if the address-size attribute is 16 bits, or the 32-bit
+	ESI/EDI if the address-size attribute is 32 bits.
+
+	CMPS can be preceded by a REPE/REPZ (0xF3) or REPNE/REPNZ (0xF2) prefix, to
+	continually compare elements in a string.  At each repetition, the (E)CX
+	register is decremented, the loop ending when it reaches 0 or the condition
+	fails (ZF is set/clear based on the comparison).  The JeCXZ instruction can
+	be used to differentiate between the two cases.
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the comparison.
+48) MOVxX
+49) MUL
+50) NEG/NOT - 
+51) NOP
+52) OR - Logical OR: Calculate the bitwise logical inclusive OR of the two
+	operands, and store the result in the destination operand.  Each bit of the
+	result is set if the corresponding bit in either of the operands is set.
+
+	OR r/m8, r8		;		08 /r	|	OR r/m8, imm8		;		80 /1 ib
+	OR r/m16, r16	;	o16 09 /r	|	OR r/m16, imm16		;	o16 81 /1 iw
+	OR r/m32, r32	;	o32 09 /r	|	OR r/m32, imm32		;	o32 81 /1 id
+	OR r8, r/m8		;		0A /r	|	(*) [OR r/m8, sx(imm8)	;	82 /1 ib]
+	OR r16, r/m16	;	o16 0B /r	|	OR r/m16, sx(imm8)	;	o16 83 /1 ib
+	OR r32, r/m32	;	o32 0B /r	|	OR r/m32, sx(imm8)	;	o32 83 /1 ib
+	OR AL, imm8		;		0C ib	|
+	OR AX, imm16	;	o16 0D iw	|
+	OR EAX, imm32	;	o32	0D id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: OF and CF are cleared, AF is undefined.
+		SF, ZF, and PF are modified to reflect the result of the operation.
+
+53) OUT - 
+54) OUTS
+14) CMPS - CoMPare String operands: Compare two data items and set the FLAGS
+	based on the result.  The bytes, words, or double-words at DS:(E)SI and
+	ES:(E)DI are compared, the FLAGS being set accordingly but the difference
+	being otherwise discarded.  The index registers (E)SI and (E)DI are then
+	advanced to point to the next element in the string.
+
+	CMPS m8, m8		;		A6		|	CMPSB		;		A6
+	CMPS m16, m16	;	o16 A7		|	CMPSW		;	o16	A7
+	CMPS m32, m32	;	o32 A7		|	CMPSD		;	o32 A7
+
+	The operands are always the index registers DS:(E)SI (the DS segment register
+	can be overriden by the appropriate segment override prefix) and ES:(E)DI
+	(the ES segment register cannot be overriden), which must have been
+	pre-loaded with the correct addresses.  The operand versions merely allow
+	the assembler to choose the correct instruction based on the original
+	definition of the data objects.
+
+	After comparing the data, the index registers are advanced to the next
+	element in the string: by 1 for CMPSB, 2 for CMPSW, or 4 for CMPSD.  The
+	direction of this advance is based on the Direction Flag (DF): forward if
+	the flag is clear, or backward if the flag is set.  The set of registers
+	are the 16-bit SI/DI if the address-size attribute is 16 bits, or the 32-bit
+	ESI/EDI if the address-size attribute is 32 bits.
+
+	CMPS can be preceded by a REPE/REPZ (0xF3) or REPNE/REPNZ (0xF2) prefix, to
+	continually compare elements in a string.  At each repetition, the (E)CX
+	register is decremented, the loop ending when it reaches 0 or the condition
+	fails (ZF is set/clear based on the comparison).  The JeCXZ instruction can
+	be used to differentiate between the two cases.
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the comparison.
+55) POP - 
+56) PUSH - 
+57) ROR/ROL/RCR/RCL - 
+58) REP, REPcc
+59) RET - 
+60) SAHF - 
+61) SHR/SHL/SAR/SAL - 
+
+62) SBB - SuBtract with Borrow: Calculate the difference of two operands,
+	including a potential borrow.  The source (second) operand, incremented if
+	the Carry Flag (CF) is set (indicating a "borrow" was required by a previous
+	subtraction operation) is subtracted from the destination (first) operand,
+	and the result is stored back into the destination (first) operand.
+	The extra use of CF can be used to propogate a borrow across multi-byte or
+	multi-word subtraction.
+
+	SBB r/m8, r8	;		18 /r	|	SBB r/m8, imm8		;		80 /3 ib
+	SBB r/m16, r16	;	o16 19 /r	|	SBB r/m16, imm16	;	o16 81 /3 iw
+	SBB r/m32, r32	;	o32 19 /r	|	SBB r/m32, imm32	;	o32 81 /3 id
+	SBB r8, r/m8	;		1A /r	|	(*) [SBB r/m8, sx(imm8)	;	82 /3 ib]
+	SBB r16, r/m16	;	o16 1B /r	|	SBB r/m16, sx(imm8)	;	o16 83 /3 ib
+	SBB r32, r/m32	;	o32 1B /r	|	SBB r/m32, sx(imm8)	;	o32 83 /3 ib
+	SBB AL, imm8	;		1C ib	|
+	SBB AX, imm16	;	o16 1D iw	|
+	SBB EAX, imm32	;	o32	1D id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+63) SCAS - 
+14) CMPS - CoMPare String operands: Compare two data items and set the FLAGS
+	based on the result.  The bytes, words, or double-words at DS:(E)SI and
+	ES:(E)DI are compared, the FLAGS being set accordingly but the difference
+	being otherwise discarded.  The index registers (E)SI and (E)DI are then
+	advanced to point to the next element in the string.
+
+	CMPS m8, m8		;		A6		|	CMPSB		;		A6
+	CMPS m16, m16	;	o16 A7		|	CMPSW		;	o16	A7
+	CMPS m32, m32	;	o32 A7		|	CMPSD		;	o32 A7
+
+	The operands are always the index registers DS:(E)SI (the DS segment register
+	can be overriden by the appropriate segment override prefix) and ES:(E)DI
+	(the ES segment register cannot be overriden), which must have been
+	pre-loaded with the correct addresses.  The operand versions merely allow
+	the assembler to choose the correct instruction based on the original
+	definition of the data objects.
+
+	After comparing the data, the index registers are advanced to the next
+	element in the string: by 1 for CMPSB, 2 for CMPSW, or 4 for CMPSD.  The
+	direction of this advance is based on the Direction Flag (DF): forward if
+	the flag is clear, or backward if the flag is set.  The set of registers
+	are the 16-bit SI/DI if the address-size attribute is 16 bits, or the 32-bit
+	ESI/EDI if the address-size attribute is 32 bits.
+
+	CMPS can be preceded by a REPE/REPZ (0xF3) or REPNE/REPNZ (0xF2) prefix, to
+	continually compare elements in a string.  At each repetition, the (E)CX
+	register is decremented, the loop ending when it reaches 0 or the condition
+	fails (ZF is set/clear based on the comparison).  The JeCXZ instruction can
+	be used to differentiate between the two cases.
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the comparison.
+64) SETcc - 
+
+65) Store Special Registers: Store Protected Mode, Operating System registers.
+	Though these instructions are not generally of use to user programs, they
+	are not privileged and can be run at any CPL.
+
+	SGDT	m16&32	;	0F 01 /0	| Store Global Descriptor Table register
+	SIDT	m16&32	;	0F 01 /1	| Store Interrupt Descriptor Table register
+	SLDT	r/m16	;	0F 00 /0	| Store Local Descriptor Table register
+	STR		r/m16	;	0F 00 /1	| Store Task Register
+	SMSW	r/m16	;	0F 01 /4	| Store Machine Status Word (CR0[15:0])
+
+	No FLAGS are modified as a result of these instructions.
+66) SHLD/SHRD
+67) SLDT
+68) SMSW
+
+69) FLAG Operations (2): Change the value of the specified bit in (E)FLAGS.
+	Only the specified flag bit is changed; all others are left unmodified.
+
+	STC		; F8	| Set Carry Flag: CF = 1
+	STD		; FC	| Set Direction Flag: DF = 1 (String instructions reverse)
+	STI		; FA	| Set Interrupt-enable Flag: IF = 1 (enable interrupts)
+
+	The IF (Interrupt-enabled Flag) can only be changed if the CPL is at least
+	as privileged as the IOPL (CPL <= IOPL).  (IOPL is bits 12-13 of (E)FLAGS.)
+
+70) STOS
+14) CMPS - CoMPare String operands: Compare two data items and set the FLAGS
+	based on the result.  The bytes, words, or double-words at DS:(E)SI and
+	ES:(E)DI are compared, the FLAGS being set accordingly but the difference
+	being otherwise discarded.  The index registers (E)SI and (E)DI are then
+	advanced to point to the next element in the string.
+
+	CMPS m8, m8		;		A6		|	CMPSB		;		A6
+	CMPS m16, m16	;	o16 A7		|	CMPSW		;	o16	A7
+	CMPS m32, m32	;	o32 A7		|	CMPSD		;	o32 A7
+
+	The operands are always the index registers DS:(E)SI (the DS segment register
+	can be overriden by the appropriate segment override prefix) and ES:(E)DI
+	(the ES segment register cannot be overriden), which must have been
+	pre-loaded with the correct addresses.  The operand versions merely allow
+	the assembler to choose the correct instruction based on the original
+	definition of the data objects.
+
+	After comparing the data, the index registers are advanced to the next
+	element in the string: by 1 for CMPSB, 2 for CMPSW, or 4 for CMPSD.  The
+	direction of this advance is based on the Direction Flag (DF): forward if
+	the flag is clear, or backward if the flag is set.  The set of registers
+	are the 16-bit SI/DI if the address-size attribute is 16 bits, or the 32-bit
+	ESI/EDI if the address-size attribute is 32 bits.
+
+	CMPS can be preceded by a REPE/REPZ (0xF3) or REPNE/REPNZ (0xF2) prefix, to
+	continually compare elements in a string.  At each repetition, the (E)CX
+	register is decremented, the loop ending when it reaches 0 or the condition
+	fails (ZF is set/clear based on the comparison).  The JeCXZ instruction can
+	be used to differentiate between the two cases.
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the comparison.
+71) STR
+
+72) SUB - Normal SUBtraction: Calculate the difference of two operands.  The
+	source (second) operand is subtracted from the destination (first) operand,
+	and the result is stored back into the destination operand.
+
+	SUB r/m8, r8	;		28 /r	|	SUB r/m8, imm8		;		80 /5 ib
+	SUB r/m16, r16	;	o16 29 /r	|	SUB r/m16, imm16	;	o16 81 /5 iw
+	SUB r/m32, r32	;	o32 29 /r	|	SUB r/m32, imm32	;	o32 81 /5 id
+	SUB r8, r/m8	;		2A /r	|	(*) [SUB r/m8, sx(imm8)	;	82 /5 ib]
+	SUB r16, r/m16	;	o16 2B /r	|	SUB r/m16, sx(imm8)	;	o16 83 /5 ib
+	SUB r32, r/m32	;	o32 2B /r	|	SUB r/m32, sx(imm8)	;	o32 83 /5 ib
+	SUB AL, imm8	;		2C ib	|
+	SUB AX, imm16	;	o16 2D iw	|
+	SUB EAX, imm32	;	o32	2D id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+73) TEST - TEST operand against bitmask: Perform a bitwise logical AND of the
+	two operands (each bit of the result is set if and only if the corresponding
+	bits in both operands is set), setting the FLAGS based on the operation but
+	otherwise discarding the result.
+	Unlike CMP, which performs a subtraction, in which the order of the operands
+	is significant, TEST performs a commutative operation, so the order of the
+	operands is irrelevant.  Accordingly, some operand forms normally available
+	in other binary operations would be redundant.  These include the (r, r/m)
+	forms and the sign-extend of immediate forms.
+
+	TEST r/m8, r8	;		84 /r	|	TEST r/m8, imm8		;		F6 /0 ib
+	TEST r/m16, r16	;	o16 85 /r	|	TEST r/m16, imm16	;	o16 F7 /0 iw 
+	TEST r/m32, r32	;	o32 85 /r	|	TEST r/m32, imm32	;	o32 F7 /0 id
+	TEST AL, imm8	;		A8 ib	|
+	TEST AX, imm16	;	o16 A9 iw	|
+	TEST EAX, imm32	;	o32 A9 id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: OF and CF are cleared, AF is undefined.
+		SF, ZF, and PF are modified to reflect the result of the operation.
+
+74) VERR/VERW
+75) WAIT
+76) WBINVD
+77) XADD
+
+78) XCHG - eXCHanGe operands: The values in the two operands are exchanged.  The
+	form of this operand that encodes XCHG AX, AX is explicitly recognized as a
+	NOP (no-op) operation.  If one of the operands is in memory, the processor
+	asserts a #LOCK, even when no LOCK prefix is specified.
+
+	XCHG r/m8, r8	/ XCHG r8, r/m8		;		86 /r
+	XCHG r/m16, r16	/ XCHG r16, r/m16	;	o16	87 /r
+	XCHG r/m32, r32	/ XCHG r32, r/m32	;	o32	87 /r
+	XCHG AX, r16	/ XCHG r16, AX		;	o16	90 +r
+	XCHG EAX, r32	/ XCHG r32, EAX		;	o32	90 +r
+
+	No FLAGS are modified by this instruction.
+
+79) XLAT
+
+80) XOR - Logical eXclusive OR: Calculate the logical exclusive OR of the two
+	operands and store the result in the destination (first) operand.  Each bit
+	of the result is set if and only if exactly one of the corresponding bits of
+	the two operands is set.
+
+	XOR r/m8, r8	;		30 /r	|	XOR r/m8, imm8		;		80 /6 ib
+	XOR r/m16, r16	;	o16 31 /r	|	XOR r/m16, imm16	;	o16 81 /6 iw
+	XOR r/m32, r32	;	o32 31 /r	|	XOR r/m32, imm32	;	o32 81 /6 id
+	XOR r8, r/m8	;		32 /r	|	(*) [XOR r/m8, sx(imm8)	;	82 /6 ib]
+	XOR r16, r/m16	;	o16 33 /r	|	XOR r/m16, sx(imm8)	;	o16 83 /6 ib
+	XOR r32, r/m32	;	o32 33 /r	|	XOR r/m32, sx(imm8)	;	o32 83 /6 ib
+	XOR AL, imm8	;		34 ib	|
+	XOR AX, imm16	;	o16 35 iw	|
+	XOR EAX, imm32	;	o32	35 id	|
+
+	FLAGS{OF, SF, ZF, AF, PF, CF}: OF and CF are cleared, AF is undefined.
+		SF, ZF, and PF are modified to reflect the result of the operation.
+
+
+i486: Cache operations
+27) INVD - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
+28) INVLPG - 
+	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+
 
 2) ADC: ADD with Carry Flag: Calculate the sum of the two operands and the SF
 	flag (an extra 1 or 0), and store the result into the destination operand.
 	This is used to propogate a carry across multi-byte or multi-word addition.
 
 	ADC r/m8, r8	;		10 /r	|	ADC r/m8, imm8		;		80 /2 ib
-	ADC r/m16, r16	;	o16 11 /r	|	ADC r/m16, imm16	;	o16 81 /2 iw 
+	ADC r/m16, r16	;	o16 11 /r	|	ADC r/m16, imm16	;	o16 81 /2 iw
 	ADC r/m32, r32	;	o32 11 /r	|	ADC r/m32, imm32	;	o32 81 /2 id
 	ADC r8, r/m8	;		12 /r	|	(*) [ADC r/m8, sx(imm8)	;	82 /2 ib]
 	ADC r16, r/m16	;	o16 13 /r	|	ADC r/m16, sx(imm8)	;	o16 83 /2 ib
-	ADC	r32, r/m32	;	o32 13 /r	|	ADC r/m32, sx(imm8)	;	o32 83 /2 ib
+	ADC r32, r/m32	;	o32 13 /r	|	ADC r/m32, sx(imm8)	;	o32 83 /2 ib
 	ADC AL, imm8	;		14 ib	|
 	ADC AX, imm16	;	o16 15 iw	|
 	ADC EAX, imm32	;	o32	15 id	|
 
 	FLAGS{OF, SF, ZF, AF, PF, CF}: Reflect the result of the operation.
+	FLAGS{OF, SF, ZF, AF, PF, CF}: OF and CF are cleared, AF is undefined.
+		SF, ZF, and PF are modified to reflect the result of the operation.
 
 
 
